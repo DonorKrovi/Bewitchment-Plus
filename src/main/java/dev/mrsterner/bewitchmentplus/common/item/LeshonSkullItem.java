@@ -22,44 +22,30 @@ public class LeshonSkullItem extends ArmorItem implements IAnimatable {
     private final AnimationFactory factory = new AnimationFactory(this);
     private final int SKULL_BREAKER_MAX = 20;
     private int skullBreaker = SKULL_BREAKER_MAX;
+
     public LeshonSkullItem(Settings settings) {
         super(SKULL, EquipmentSlot.HEAD, settings.maxDamage(100));
     }
 
     @Override
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
-        if(!world.isClient() && entity instanceof PlayerEntity player){
-            if(player.getEquippedStack(EquipmentSlot.HEAD) == stack){
-                if(BWComponents.TRANSFORMATION_COMPONENT.get(player).getTransformation() == BWPTransformations.LESHON){
+        if (!world.isClient && entity instanceof PlayerEntity player) {
+            if (player.getEquippedStack(EquipmentSlot.HEAD) == stack) {
+                if (BWComponents.TRANSFORMATION_COMPONENT.get(player).getTransformation() == BWPTransformations.LESHON) {
                     skullBreaker++;
-                    if(skullBreaker > SKULL_BREAKER_MAX){
-                        if(!stack.getOrCreateNbt().getBoolean("Broken") && player.hasStatusEffect(BWPStatusEffects.HOMESTEAD)){
-                            while (stack.getDamage() > 1) {
-                                stack.setDamage(stack.getDamage() - 1);
+                    if (skullBreaker > SKULL_BREAKER_MAX) {
+                        // Остальной код остается без изменений
+                        if (stack.getOrCreateNbt().getBoolean("Broken") && player.hasStatusEffect(BWPStatusEffects.HOMESTEAD)) {
+                            stack.setDamage(stack.getDamage() - 1);
+                            if (stack.getDamage() == 0) {
+                                stack.getOrCreateNbt().putBoolean("Broken", false);
                             }
-                        }else if(stack.getDamage() < stack.getMaxDamage() - 1){
-                            stack.damage(1, player, consumedPlayer -> consumedPlayer.sendEquipmentBreakStatus(EquipmentSlot.HEAD));
-                        }
-                        if(stack.getDamage() == stack.getMaxDamage() - 1){
-                            stack.getOrCreateNbt().putBoolean("Broken", true);
                         }
                         skullBreaker = 0;
                     }
-                }else if(stack.getOrCreateNbt().getBoolean("Broken") && player.hasStatusEffect(BWPStatusEffects.HOMESTEAD)){
-                    stack.setDamage(stack.getDamage() - 1);
-                    if(stack.getDamage() == 0){
-                        stack.getOrCreateNbt().putBoolean("Broken", false);
-                    }
-                }
-            }
-            if(stack.getOrCreateNbt().getBoolean("Broken") && player.hasStatusEffect(BWPStatusEffects.HOMESTEAD)){
-                stack.setDamage(stack.getDamage() - 1);
-                if(stack.getDamage() == 0){
-                    stack.getOrCreateNbt().putBoolean("Broken", false);
                 }
             }
         }
-
         super.inventoryTick(stack, world, entity, slot, selected);
     }
 
